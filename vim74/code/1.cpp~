@@ -1,0 +1,118 @@
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+
+using namespace std;
+
+int T;
+int n,cnt;
+int root = 1;
+int v[100010];
+int top1[100010],top2[100010],down1[100010],down2[100010];
+int d1[100010],d2[100010];
+int u1[100010],u2[100010];
+
+struct edge
+{
+	int ed,v;
+	edge* next;
+}e[200100],*head[100010];
+
+void add_edge(int st,int ed,int v)
+{
+	e[++cnt].ed =ed;
+	e[cnt].v = v;
+	e[cnt].next = head[st];
+	head[st] = e + cnt;
+}
+
+void init()
+{
+	memset(top1,0,sizeof(top1));
+	memset(top1,0,sizeof(top2));
+	memset(top1,0,sizeof(down1));
+	memset(top1,0,sizeof(down2));
+	cnt = 0;
+	scanf("%d",&n);
+	for (int i = 1; i <= n; ++i)
+	{
+		scanf("%d",&v[i]);
+		head[i] = NULL;
+	}
+	for (int i = 1; i < n ; ++i)
+	{
+		int x,y,z;
+		scanf("%d%d%d",&x,&y,&z);
+		add_edge(x,y,z);
+		add_edge(y,x,z);
+	}
+}
+
+void down(int now,int ft)
+{
+	d1[now]=v[now];
+	d2[now]=v[now];
+	int p1=0,p2=0;
+	for (edge *pt = head[now]; pt != NULL; pt = pt->next)
+	{
+		int ed=pt->ed,c1,c2;
+		if (ed==ft) continue;
+		down(ed,now);
+		if (d1[ed]>2*pt->v) d1[now]+=d1[ed]-2*pt->v;
+		c1=max(0,d1[ed]-2*pt->v);
+		c2=max(0,d2[ed]-pt->v);
+		down1[ed]=c1;down2[ed]=c2;
+		if (c2-c1>p1)
+		{
+			p2=p1;top2[now]=top1[now];
+			p1=c2-c1;top1[now]=ed;
+		}
+		else
+			if (c2-c1>p2)
+			{
+				p2=c2-c1;top2[now]=ed;
+			}
+	}
+	d2[now] = d1[now]+p1;
+
+}
+void up(int now,int ft)
+{
+	for (edge* pt = head[now]; pt != NULL; pt = pt->next)
+	{
+		int ed = pt->ed,tmp,z;
+		if (ed == ft) continue;
+		tmp = d1[now] - max(0,d1[ed] - 2*pt->v);
+		if (u1[now]>0) tmp += u1[now];
+		u1[ed] = max(0,tmp - 2*pt->v);
+		tmp = d1[now] - max(0,d1[ed]-2*pt->v);
+		tmp += u2[now];
+		u2[ed] = max(0,tmp - pt->v);
+		tmp = d1[now] - max(0,d1[ed]-2*pt->v);
+		if (top1[now] != ed) 
+			z = top1[now];
+		else z = top2[now];
+		tmp += down2[z]-down1[z];
+		tmp += u1[now];
+		u2[ed] = max(u2[ed],tmp-pt->v);
+		up(ed,now);
+	}
+}
+
+void work()
+{}
+
+int main()
+{
+	scanf("%d",&T);
+	for (int i = 1; i <= T;++i)
+	{
+		printf("Case #%d:\n",i);
+		init();
+		down(root,0);
+		up(root,0);
+		for (int j = 1; j <= n; j++)
+			printf("%d\n",max(d1[j]+u2[j],d2[j]+u1[j]));
+	}
+}
+

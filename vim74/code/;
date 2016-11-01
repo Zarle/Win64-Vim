@@ -1,0 +1,146 @@
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+
+using namespace std;
+
+
+struct node
+{
+	int utype;
+	node *tlink;
+	struct data
+	{
+		node *hlink;
+		char value;
+		int ref;
+	}info;
+}*root[30];
+
+string s[30];
+int l[30];
+int t1,t2,n;
+
+void new_list()
+{
+	for (int i = 1; i <= n; ++i)
+		l[i] = s[i].length();
+	
+	for (int k = 1; k <= n; ++k)
+	{
+		root[k] = new node;
+		root[k]->utype = 0;
+		root[k]->info.ref = 1;
+		root[k]->tlink = new node;
+		node* pt = root[k]->tlink;
+		for (int i = 0; i < l[k]-1; ++i)
+		{
+			pt->utype = 1;
+			pt->info.value = s[k][i];
+			pt->tlink = new node;
+			pt = pt->tlink;
+		}
+		pt->utype = 1;
+		pt->info.value = s[k][l[k]-1];
+	}
+}
+
+void merge(int s1,int s2,int ll)
+{
+	node* pt1 = root[s1];
+	node* pt2 = root[s2];
+	int cnt1 = 0,cnt2 = 0;
+	while (cnt1 != l[s1]-ll)
+	{
+		pt1 = pt1->tlink;
+	}
+	while (cnt1 != l[s1]-ll)
+		pt1 = pt1->tlink;
+	for (int i = 0; i < l[s1]-ll; ++i)
+		pt1 = pt1->next;
+	for (int i = 0; i < l[s2]-ll-1;++i)
+		pt2 = pt2->next;
+	node *pt = pt2->next,*tmp;
+	pt2->next = pt1;
+	while (pt)
+	{
+		tmp = pt->next;
+		delete[] pt;
+		pt = tmp;
+	}
+}
+
+void make_list()
+{
+	new_list();
+	for (int i = 2; i <= n; ++i)
+	{
+		int flag = 0, num = 0;
+		for (int j = 1; j < i; ++j)
+		{
+			int len = 0;
+			while (s[i][l[i]-len-1] == s[j][l[j]-len-1]) 
+				if (len < l[i] && len < l[j]) ++len;
+				else break;
+			if (len > num)
+			{
+				flag = j;
+				num = len;
+			}
+		}
+		if (flag) merge(flag,i,num);
+	}
+
+	/*puts("");
+	for (int i = 1; i <= n; ++i)
+	{
+		for (node* pt = root[i].next; pt; pt = pt->next)
+			printf("%c",pt->data);
+		printf("\n");
+	}
+	puts("");*/
+}
+
+node* query(int t1, int t2)
+{
+	node *pt1, *pt2 = root[t2].next;
+	while (pt2)
+	{
+		pt1 = root[t1].next;
+		while (pt1 && pt1 != pt2)
+			pt1 = pt1->next;
+		if (pt1 != pt2) pt2 = pt2->next;
+		else break;
+	}
+	return pt1;
+}
+
+int main()
+{
+	printf("Please Input the Number of Strings: ");
+	scanf("%d",&n);
+	printf("Please Input Strings:\n");
+	for (int i = 1; i <= n; ++i)
+		cin >> s[i];
+
+	make_list();
+
+	printf("Please Input the Number of Questions:\n");
+	int T;
+	scanf("%d",&T);
+	while (T--)
+	{
+		printf("Please Input the Numeber of two Strings to Query:\n");
+		scanf("%d %d",&t1,&t2);
+		node* pt = query(t1,t2);
+		if (pt == NULL) printf("No Same Suffix\n");
+		else
+		{
+			printf("%x\n",pt);
+			for (;pt; pt = pt->next)
+				printf("%c",pt->data);
+			printf("\n");
+		}
+	}
+	return 0;
+}

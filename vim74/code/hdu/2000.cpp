@@ -1,0 +1,18 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+char s[5];
+
+int main()
+{
+	while(~scanf("%s",s))
+	{
+		sort(s,s+3);
+		for (int i = 0; i < 2; ++i)
+			printf("%c ",s[i]);
+		printf("%c",s[2]);
+		printf("\n");
+	}
+	return 0;
+}

@@ -1,0 +1,19 @@
+#include<cstdio>
+
+using namespace std;
+
+int s;
+
+int fibonacci(int now)
+{
+	if (now == 0) return 0;
+	if (now == 1 || now == 2) return 1;
+	return fibonacci(now-1)+fibonacci(now-2);
+}
+
+int main()
+{
+	scanf("%d",&s);
+	printf("%d\n",fibonacci(s));
+	return 0;
+}

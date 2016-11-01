@@ -1,0 +1,28 @@
+#include<cstdlib>
+#include<cstdio>
+#include<algorithm>
+
+using namespace std;
+
+int n;
+int num[300001];
+long long ans,tmp;
+
+int main()
+{
+	scanf("%d",&n);
+	for (int i = 1; i <= n; ++i)
+		scanf("%d",&num[i]);
+	sort(num+1,num+n+1);
+	for (int i = 1; i <= n; i++)
+		ans += num[i];
+	tmp = ans;
+	for (int i = 1; i <= n; ++i)
+	{
+		ans += tmp;
+		tmp -= num[i];
+	}
+	ans -= num[n];
+	printf("%I64d",ans);
+	return 0;
+}

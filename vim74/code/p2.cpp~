@@ -1,0 +1,67 @@
+#include<cstdlib>
+#include<cstdio>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
+
+int num[20];
+int s[20];
+int T,ans,cnt,n;
+
+bool prime(int p)
+{
+	if (p == 2) return true;
+	for (int i = 2; i <= sqrt(p); ++i)
+		if (p % i == 0) return false;
+	return true;
+}
+
+void check()
+{
+	if (!cnt) return;
+	for (int j = cnt; j >= 1; --j)
+		for (int i = j-1; i > 0; --i)
+			if (s[j] % s[i] != 0) continue;
+			else
+			{
+				int p = s[j] / s[i];
+				if (prime(p)) return;
+			}
+	if (cnt > ans) ans = cnt;
+}
+
+void dfs(int dep)
+{
+	if (dep > n)
+	{
+		check();
+		return;
+	}
+	s[++cnt] = num[dep];
+	dfs(dep+1);
+	--cnt;
+	dfs(dep+1);
+}
+
+void deal()
+{
+	dfs(1);
+}
+
+int main()
+{
+	scanf("%d",&T);
+	for (int i = 1; i <= T; ++i)
+	{
+		scanf("%d",&n);
+		ans = 1;
+		cnt = 0;
+		for (int j = 1 ; j <= n; ++j)
+			scanf("%d",&num[j]);
+		sort(num+1,num+n+1);
+		deal();
+		printf("Case #%d: %d\n",i,ans);
+	}
+	return 0;
+}

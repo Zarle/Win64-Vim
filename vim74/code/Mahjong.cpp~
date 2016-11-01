@@ -1,0 +1,187 @@
+#include<cstdlib>
+#include<cstdio>
+#include<cstring>
+
+
+int mahjong[10][5];
+bool key[10][5];
+int N;
+
+void init()
+{
+	char s[3];
+	memset(mahjong,0,sizeof(mahjong));
+	memset(key,0,sizeof(key));
+	for (int i = 1; i <= 13; ++i)
+	{
+		scanf("%s",s);
+		if (s[1] == 'm') mahjong[(int)s[0]-48][1]++;
+		if (s[1] == 's') mahjong[(int)s[0]-48][2]++;
+		if (s[1] == 'p') mahjong[(int)s[0]-48][3]++;
+		if (s[1] == 'c') mahjong[(int)s[0]-48][4]++;
+	}
+}
+
+void judge_1()
+{
+	int cnt = 0;
+	for (int i = 1; i <= 9; ++i)
+		for (int j = 1; j <= 4; ++j)
+			if (mahjong[i][j] == 2)
+				++cnt;
+	if (cnt == 6)
+		for (int i = 1; i <= 9; ++i)
+			for (int j = 1; j <= 4; ++j)
+				if (mahjong[i][j] == 1) key[i][j] = true;
+}
+
+void judge_2()
+{
+	int cnt = 0,cnt1 = 0;
+	for (int j = 1; j <= 3; ++j)
+	{
+		if (mahjong[1][j]) ++cnt, cnt1 += mahjong[1][j];
+		if (mahjong[9][j]) ++cnt, cnt1 += mahjong[9][j];
+	}
+	for (int i = 1; i <= 7; ++i)
+		if (mahjong[i][4]) ++cnt, cnt1 += mahjong[i][4];
+	if (cnt == 13)
+	{
+		for (int j = 1; j <= 3; ++j)
+			key[1][j] = key[9][j] = true;
+		for (int i = 1; i <= 7; ++i)
+			key[i][4] = true;
+		return;
+	}
+	if ((cnt == 12)&&(cnt1 == 13))
+	{
+		for (int j = 1; j <= 3; ++j)
+		{
+			if (!mahjong[1][j]) key[1][j] = true;
+			if (!mahjong[9][j]) key[9][j] = true;
+		}
+		for (int i = 1; i <= 7; ++i)
+			if (!mahjong[i][4]) key[i][4] = true;
+	}
+}
+
+bool dfs(int dep, bool db)
+{
+	if (dep == 5 && db) return true;
+	for (int j = 1; j <= 3; ++j)
+		for (int i = 1; i <= 9; ++i)
+		{
+			if (!mahjong[i][j]) continue;
+			if (mahjong[i][j] >= 3)
+			{
+				mahjong[i][j] -= 3;
+				if (dfs(dep+1,db))
+				{
+					mahjong[i][j] += 3;
+					return true;
+				}
+				mahjong[i][j] += 3;
+			}
+			if (mahjong[i][j] >= 2 && !db)
+			{
+				mahjong[i][j] -= 2;
+				if (dfs(dep,true))
+				{
+					mahjong[i][j] += 2;
+					return true;
+				}
+				mahjong[i][j] += 2;
+			}
+			if (mahjong[i][j] == 1 && i >= 8) return false;
+			if (i < 8)
+				if (!mahjong[i+1][j] || !mahjong[i+2][j]) return false;
+				else
+				{
+					mahjong[i][j]--,mahjong[i+1][j]--,mahjong[i+2][j]--;
+					if (dfs(dep+1,db))
+					{
+						mahjong[i][j]++,mahjong[i+1][j]++,mahjong[i+2][j]++;
+						return true;
+					}
+					mahjong[i][j]++,mahjong[i+1][j]++,mahjong[i+2][j]++;
+				}
+		}
+}
+
+bool check()
+{
+	int cp = 0;
+	bool db = false;
+	for (int i = 1; i <= 7; ++i)
+	{
+		if (mahjong[i][4] == 1 || mahjong[i][4] == 4) return false;
+		if (mahjong[i][4] == 2)
+			if (db) return false;
+			else db = true;
+		if (mahjong[i][4] == 3) ++cp;
+	}
+	return dfs(1+cp,db);
+}
+
+void judge_3()
+{
+	for (int i = 1; i <= 9; ++i)
+		for (int j = 1; j <= 3; ++j)
+			if (mahjong[i][j] < 4)
+			{
+				++mahjong[i][j];
+				if (check()) key[i][j] = true;
+				--mahjong[i][j];
+			}
+	for (int i = 1; i <= 7; ++i)
+		if (mahjong[i][4] < 4)
+		{
+			++mahjong[i][4];
+			if (check()) key[i][4] = true;
+			--mahjong[i][4];
+		}
+}
+
+void print()
+{
+	int ans = 0;
+	for (int i = 1; i <= 9; ++i)
+		for (int j = 1; j <= 4; ++j)
+			if (key[i][j]) ++ans;
+	if (ans) printf("%d ",ans);
+	else
+	{
+		printf("Nooten\n");
+		return;
+	}
+	for (int j = 1; j <= 4; ++j)
+		for (int i = 1; i <= 9; ++i)
+			if (key[i][j])
+			{
+				if (j == 1) printf("%dm ",i);
+				if (j == 2) printf("%ds ",i);
+				if (j == 3) printf("%dp ",i);
+				if (j == 4) printf("%dc ",i);
+			}
+	printf("\n");
+}
+
+void deal()
+{
+	init();
+	judge_1();
+	judge_2();
+	judge_3();
+	print();
+}
+
+int main()
+{
+	//freopen("in","r",stdin);
+	//freopen("out","w",stdout);
+	scanf("%d",&N);
+	for (int i = 1; i <= N; ++i)
+		deal();
+	return 0;
+}
+//using namespace std;

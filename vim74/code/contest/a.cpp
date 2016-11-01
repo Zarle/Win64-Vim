@@ -1,0 +1,35 @@
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+char s[110];
+int n;
+
+int main()
+{
+	scanf("%d",&n);
+	for (int i = 1; i <= n; ++i)
+	{
+		scanf("%s",s);
+		int len = strlen(s);
+		int tmp;
+		s[len+2] = 'z'+1;
+		for (int j = len - 1; j >= 0; --j)
+		{
+			tmp = len + 2;
+			for (int k = len-1; k > j; --k)
+				if (s[k] > s[j] && s[k] <= s[tmp]) tmp = k;
+			if (tmp != len + 2)
+			{
+				swap(s[j],s[tmp]);
+				sort(s+j+1,s+len);
+				break;
+			}
+		}
+		if (tmp == len + 2) printf("no answer\n");
+		else printf("%s\n",s);
+	}
+	return 0;
+}
